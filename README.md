@@ -75,7 +75,7 @@ Keys are saved on your device only, so you only do this once per device.
 
 ## Using the app
 
-1. Pick a **hero** (Spider-Man, Batman, Ninja Turtle, Darth Vader, The Joker, Catwoman, Mr. Freeze, Jack Skellington — or type your own companion)
+1. Pick a **hero** or type your own companion
 2. Pick an **adventure type** and a **mood**
 3. Optionally open **Parent Settings** to set age, story length, a lesson/development goal (persistence, confidence, kindness, etc.), and how scary the story can be
 4. Tap **Tell Me a Story ✨**
