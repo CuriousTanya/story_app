@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Story Time</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Story Time">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Lora:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://js.puter.com/v2/"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:linear-gradient(180deg,#bdd8ef 0%,#dceef8 20%,#f0f5fb 55%,#f8f9fc 100%);min-height:100vh;color:#2c2c3e}
+#app{max-width:540px;margin:0 auto;padding:32px 20px 64px}
+
+/* Cards */
+.card{background:#fffef9;border:1.5px solid #e8edf5;border-radius:20px;padding:22px;margin-bottom:14px;box-shadow:0 2px 14px rgba(91,126,201,.07)}
+.card-plain{background:white;border:1.5px solid #e8edf5;border-radius:16px;padding:18px;margin-bottom:14px}
+
+/* Labels */
+.lbl{font-size:11px;font-weight:800;color:#5b7ec9;text-transform:uppercase;letter-spacing:2px;margin-bottom:13px;display:block}
+.hint{font-size:13px;color:#94a3b8;line-height:1.6;margin-bottom:12px}
+
+/* Grids */
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+
+/* Tiles */
+.tile{background:white;border:1.5px solid #e8edf5;border-radius:14px;padding:14px 6px 11px;cursor:pointer;text-align:center;transition:all .15s;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.tile:active{transform:scale(.96)}
+.tile.on{background:#5b7ec9;border-color:#5b7ec9;color:white;box-shadow:0 3px 10px rgba(91,126,201,.3)}
+.tile .ico{font-size:28px;display:block;margin-bottom:5px;line-height:1}
+.tile .nm{font-size:10px;font-weight:700;line-height:1.2;color:inherit}
+.tile:not(.on) .nm{color:#64748b}
+
+/* Chips */
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{border-radius:50px;padding:7px 15px;font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid #e8edf5;background:white;color:#64748b;font-family:inherit;transition:all .15s}
+.chip.on{background:#5b7ec9;border-color:#5b7ec9;color:white}
+
+/* Inputs */
+input[type=text],input[type=password]{font-family:inherit;background:white;border:1.5px solid #e8edf5;border-radius:12px;padding:11px 16px;color:#2c2c3e;font-size:15px;width:100%;outline:none;transition:border-color .15s}
+input:focus{border-color:#5b7ec9;box-shadow:0 0 0 3px rgba(91,126,201,.1)}
+input[type=range]{width:100%;accent-color:#5b7ec9;cursor:pointer;margin:6px 0}
+
+/* Buttons */
+.btn{background:#5b7ec9;border:none;color:white;font-family:inherit;font-size:17px;font-weight:800;padding:18px 32px;border-radius:50px;cursor:pointer;width:100%;box-shadow:0 4px 18px rgba(91,126,201,.3);transition:all .2s;display:block;letter-spacing:.3px}
+.btn:active{transform:scale(.98);box-shadow:0 2px 10px rgba(91,126,201,.25)}
+.btn-sm{width:auto;padding:10px 18px;font-size:13px}
+.btn-ghost{background:none;border:none;color:#94a3b8;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.5px}
+.btn-red{background:#d94848}
+.row{display:flex;gap:8px;align-items:center}
+
+/* Alerts */
+.error{background:#fff0f0;border:1.5px solid #fcc;border-radius:12px;padding:12px 16px;color:#c44;font-size:14px;margin-bottom:14px}
+.warn{background:#fff0f0;border:1.5px solid #fcc;border-radius:12px;padding:12px 14px;color:#c44;font-size:14px;line-height:1.6;margin-bottom:14px}
+.ok{background:#f0faf4;border:1.5px solid #a8d8b8;border-radius:12px;padding:12px 14px;color:#2d7a4a;font-size:14px;margin-top:12px}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:50px;font-size:12px;font-weight:800;border:1.5px solid}
+
+/* Play */
+#play-btn{width:80px;height:80px;border-radius:50%;background:#5b7ec9;border:none;cursor:pointer;color:white;font-size:30px;display:flex;align-items:center;justify-content:center;margin:0 auto;box-shadow:0 4px 18px rgba(91,126,201,.4);transition:all .2s}
+#play-btn:active{transform:scale(.95)}
+#play-btn.pulse{animation:ppulse 2.5s ease-in-out infinite}
+.prog-track{width:100%;height:4px;background:#e8edf5;border-radius:2px;overflow:hidden;margin:10px 0 16px}
+.prog-fill{height:100%;background:linear-gradient(90deg,#5b7ec9,#88aee0);border-radius:2px;transition:width .3s}
+.story-text{font-family:'Lora',Georgia,serif;font-size:18px;line-height:1.95;color:#2c2c3e}
+.story-scroll{max-height:40vh;overflow-y:auto}
+
+/* Layout helpers */
+.center{text-align:center}
+.spacer{height:10px}
+.sep{border:none;border-top:1.5px solid #e8edf5;margin:16px 0}
+.collapse-hd{display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.dot{width:8px;height:8px;border-radius:50%;background:#5b7ec9;display:inline-block}
+a{color:#5b7ec9;text-decoration:none}
+
+/* Animations */
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes broom{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-14px) rotate(4deg)}}
+/* Owl flying around a small loop */
+@keyframes owlfly{
+  0%   {transform:translate(-46px,6px) rotate(-7deg) scaleX(1)}
+  20%  {transform:translate(-22px,-16px) rotate(-3deg) scaleX(1)}
+  40%  {transform:translate(20px,-22px) rotate(4deg) scaleX(1)}
+  50%  {transform:translate(46px,-10px) rotate(7deg) scaleX(1)}
+  55%  {transform:translate(48px,-6px) rotate(0deg) scaleX(-1)}
+  75%  {transform:translate(18px,12px) rotate(-3deg) scaleX(-1)}
+  92%  {transform:translate(-30px,4px) rotate(-5deg) scaleX(-1)}
+  97%  {transform:translate(-46px,2px) rotate(0deg) scaleX(-1)}
+  100% {transform:translate(-46px,6px) rotate(-7deg) scaleX(1)}
+}
+/* Bigger loop for loading screen */
+@keyframes owlflybig{
+  0%   {transform:translate(-90px,10px) rotate(-8deg) scaleX(1)}
+  25%  {transform:translate(-20px,-40px) rotate(6deg) scaleX(1)}
+  49%  {transform:translate(90px,-18px) rotate(10deg) scaleX(1)}
+  52%  {transform:translate(92px,-12px) rotate(0deg) scaleX(-1)}
+  75%  {transform:translate(10px,28px) rotate(-6deg) scaleX(-1)}
+  100% {transform:translate(-90px,10px) rotate(-8deg) scaleX(1)}
+}
+/* Wing flap */
+@keyframes flapL{0%,100%{transform:rotate(8deg)}50%{transform:rotate(-30deg)}}
+@keyframes flapR{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(30deg)}}
+.owl-wrap{display:inline-block;will-change:transform}
+.owl-wing-l{transform-origin:62px 42px;animation:flapL .35s ease-in-out infinite}
+.owl-wing-r{transform-origin:38px 42px;animation:flapR .35s ease-in-out infinite}
+@keyframes bo{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
+@keyframes ppulse{0%,100%{box-shadow:0 4px 18px rgba(91,126,201,.4)}50%{box-shadow:0 4px 30px rgba(91,126,201,.65)}}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.fi{animation:fi .35s ease}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#c8d8f0;border-radius:2px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var ls={get:function(k){return localStorage.getItem(k)||''},set:function(k,v){localStorage.setItem(k,v)}};
+function owlSVG(size,flyAnim,flapSpeed){
+  flyAnim=flyAnim||'owlfly';
+  var dur=flyAnim==='owlflybig'?'7s':'5.5s';
+  var flap=flapSpeed||'.35s';
+  return '<div class="owl-wrap" style="animation:'+flyAnim+' '+dur+' ease-in-out infinite">'
+   +'<svg width="'+size+'" height="'+size+'" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'
+   // back wing (right)
+   +'<g class="owl-wing-r" style="animation-duration:'+flap+'"><ellipse cx="28" cy="52" rx="13" ry="22" fill="#eaf1fb" stroke="#cdd" stroke-width="0"/></g>'
+   // back wing fixed fill (left side drawn first)
+   +'<g class="owl-wing-l" style="animation-duration:'+flap+'"><ellipse cx="72" cy="52" rx="13" ry="22" fill="#eaf1fb"/></g>'
+   // body
+   +'<ellipse cx="50" cy="58" rx="26" ry="30" fill="#ffffff" stroke="#dde7f4" stroke-width="1.5"/>'
+   // belly speckles (snowy owl)
+   +'<g fill="#dce6f3"><circle cx="44" cy="60" r="1.6"/><circle cx="54" cy="58" r="1.5"/><circle cx="50" cy="68" r="1.6"/><circle cx="42" cy="72" r="1.3"/><circle cx="58" cy="70" r="1.4"/><circle cx="50" cy="50" r="1.3"/></g>'
+   // head
+   +'<circle cx="50" cy="36" r="25" fill="#ffffff" stroke="#dde7f4" stroke-width="1.5"/>'
+   // head speckles
+   +'<g fill="#e6eef8"><circle cx="38" cy="26" r="1.4"/><circle cx="62" cy="26" r="1.4"/><circle cx="50" cy="20" r="1.3"/><circle cx="33" cy="36" r="1.3"/><circle cx="67" cy="36" r="1.3"/></g>'
+   // facial disc
+   +'<circle cx="40" cy="38" r="11" fill="#fbfdff" stroke="#e6eef8" stroke-width="1"/>'
+   +'<circle cx="60" cy="38" r="11" fill="#fbfdff" stroke="#e6eef8" stroke-width="1"/>'
+   // eyes
+   +'<circle cx="40" cy="38" r="7.5" fill="#fff3cf"/><circle cx="60" cy="38" r="7.5" fill="#fff3cf"/>'
+   +'<circle cx="40" cy="38" r="4.6" fill="#3a2a12"/><circle cx="60" cy="38" r="4.6" fill="#3a2a12"/>'
+   +'<circle cx="41.6" cy="36.4" r="1.5" fill="#fff"/><circle cx="61.6" cy="36.4" r="1.5" fill="#fff"/>'
+   // beak
+   +'<path d="M50 42 L46 47 Q50 50 54 47 Z" fill="#f0a93c"/>'
+   // ear tufts (subtle)
+   +'<path d="M30 18 Q33 8 38 17 Z" fill="#ffffff" stroke="#dde7f4" stroke-width="1"/>'
+   +'<path d="M70 18 Q67 8 62 17 Z" fill="#ffffff" stroke="#dde7f4" stroke-width="1"/>'
+   // feet
+   +'<path d="M44 86 l-3 5 M44 86 l0 5 M44 86 l3 5" stroke="#f0a93c" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
+   +'<path d="M56 86 l-3 5 M56 86 l0 5 M56 86 l3 5" stroke="#f0a93c" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
+   +'</svg></div>';
+}
+
+// ── Choices ───────────────────────────────────────────────────────────────────
+var HEROES=[{id:'Spider-Man',e:'🕷️'},{id:'Batman',e:'🦇'},{id:'Ninja Turtle',e:'🐢'},{id:'Darth Vader',e:'🌑'},{id:'The Joker',e:'🃏'},{id:'Catwoman',e:'🐈‍⬛'},{id:'Mr. Freeze',e:'🧊'},{id:'Jack Skellington',e:'💀'}];
+var ADVENTURES=[{id:'Mystery',e:'🔍'},{id:'Build Something',e:'🔨'},{id:'Explore',e:'🗺️'},{id:'Help a Friend',e:'🤝'},{id:'Save the Day',e:'🦸'},{id:'Treasure Hunt',e:'💎'}];
+var MOODS=[{id:'Funny',e:'😄'},{id:'Exciting',e:'⚡'},{id:'Cozy',e:'🌙'},{id:'Spooky-Fun',e:'🎃'}];
+var GOALS=['Persistence','Confidence','Friendship','Curiosity','Kindness','Courage','Sharing','Patience'];
+var SCARY=['None','A little','Some'];
+var VOICES=[{id:'EXAVITQu4vr4xnSDxMaL',n:'Bella'},{id:'21m00Tcm4TlvDq8ikWAM',n:'Rachel'},{id:'pNInz6obpgDQGcFmaJgB',n:'Adam'},{id:'yoZ06aMxZJJ28mfd3POQ',n:'Sam'}];
+var PUTER_VOICES=[{id:'fable',n:'Fable — warm storyteller'},{id:'nova',n:'Nova — friendly'},{id:'shimmer',n:'Shimmer — gentle'},{id:'echo',n:'Echo — calm'},{id:'onyx',n:'Onyx — deep'}];
+var BLOCKLIST=['gore','gory','blood','bloody','murder','rape','sexual','naked','nudity','porn','cocaine','heroin','marijuana','torture','mutilate','decapitate','suicide','overdose'];
+var SAFETY=7,INTEREST=7,ARC=6,MAX_RETRY=3;
+
+// ── State ─────────────────────────────────────────────────────────────────────
+var ST={
+  screen:(ls.get('gemini_key')&&ls.get('elabs_key'))?'config':'setup',
+  cfg:(function(){try{return JSON.parse(ls.get('sw_cfg'))||null}catch(e){return null}})()||{hero:'Batman',sidekick:'',adventure:'Mystery',mood:'Spooky-Fun',age:5,mins:5,goal:'Courage',scary:'None'},
+  parentOpen:false,
+  story:null,statusMsg:'',retryNum:0,errorMsg:'',
+  ttsPlaying:false,ttsPaused:false,ttsProgress:0,ttsFinished:false,audioFetching:false,ttsError:''
+};
+
+// ── Audio ─────────────────────────────────────────────────────────────────────
+// ── Audio (single <audio> element, unlocked once per session for iOS) ────────
+var audioEl=null, audioUnlocked=false, progTimer=null;
+var queueUrls=[], queueIdx=0;
+
+function ensureAudioEl(){
+  if(!audioEl){
+    audioEl=new Audio();
+    audioEl.setAttribute('playsinline','');
+    audioEl.preload='auto';
+    audioEl.addEventListener('timeupdate',function(){
+      if(audioEl.duration){
+        var localFrac=audioEl.currentTime/audioEl.duration;
+        var overall=((queueIdx+localFrac)/Math.max(queueUrls.length,1))*100;
+        ST.ttsProgress=Math.min(overall,99);
+      }
+      updateTTSUI();
+    });
+  }
+}
+// Must be called synchronously inside a tap/click handler (no awaits before it)
+// so iOS Safari treats subsequent programmatic .play() calls as user-approved.
+function unlockCtx(){
+  ensureAudioEl();
+  if(audioUnlocked)return;
+  audioUnlocked=true;
+  try{
+    audioEl.src='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+    var p=audioEl.play();
+    if(p&&p.catch)p.catch(function(){});
+  }catch(e){}
+}
+function stopAudio(){
+  if(audioEl){try{audioEl.pause();audioEl.onended=null;}catch(e){}}
+  if(window.speechSynthesis)window.speechSynthesis.cancel();
+  clearInterval(progTimer);
+  queueUrls=[];queueIdx=0;
+  ST.ttsPlaying=false;ST.ttsPaused=false;ST.audioFetching=false;
+}
+function playQueue(urls){
+  ensureAudioEl();
+  queueUrls=urls;queueIdx=0;
+  audioEl.onended=function(){
+    queueIdx++;
+    if(queueIdx<queueUrls.length){
+      audioEl.src=queueUrls[queueIdx];audioEl.currentTime=0;
+      audioEl.play().catch(function(err){ST.ttsError='Playback: '+err.message;updateTTSUI();});
+    }else{
+      ST.ttsFinished=true;ST.ttsPlaying=false;ST.ttsPaused=false;ST.ttsProgress=100;updateTTSUI();
+    }
+  };
+  audioEl.src=queueUrls[0];audioEl.currentTime=0;
+  ST.ttsFinished=false;ST.ttsPaused=false;ST.ttsPlaying=true;
+  audioEl.play().then(function(){updateTTSUI();}).catch(function(err){
+    ST.ttsError='Playback blocked: '+err.message;ST.ttsPlaying=false;updateTTSUI();
+  });
+}
+function fallbackSpeech(text){if(!window.speechSynthesis)return;var u=new SpeechSynthesisUtterance(text);u.rate=.82;u.pitch=1.08;var vs=speechSynthesis.getVoices();var v=vs.find(function(v){return v.name.includes('Samantha')||v.name.includes('Karen');})||vs.find(function(v){return v.lang.startsWith('en-');});if(v)u.voice=v;var estMs=(text.split(' ').length/(.82*130))*60000,t0=Date.now();u.onstart=function(){ST.ttsPlaying=true;ST.ttsPaused=false;ST.ttsProgress=0;ST.ttsFinished=false;updateTTSUI();};u.onend=function(){clearInterval(progTimer);ST.ttsPlaying=false;ST.ttsProgress=100;ST.ttsFinished=true;updateTTSUI();};u.onerror=function(){clearInterval(progTimer);ST.ttsPlaying=false;updateTTSUI();};speechSynthesis.speak(u);ST.ttsPlaying=true;clearInterval(progTimer);progTimer=setInterval(function(){ST.ttsProgress=Math.min(((Date.now()-t0)/estMs)*100,99);updateTTSUI();},500);updateTTSUI();}
+
+async function startTTS(text){
+  stopAudio();
+  var elabsKey=ls.get('elabs_key');
+  var elabsVoice=ls.get('elabs_voice')||'EXAVITQu4vr4xnSDxMaL';
+  var puterVoice=ls.get('puter_voice')||'fable';
+
+  // ── 1. ElevenLabs (only if user set a key) ──
+  if(elabsKey){
+    ST.audioFetching=true;updateTTSUI();
+    try{
+      var chunks=splitChunks(text,2400);
+      var urls=[];
+      for(var i=0;i<chunks.length;i++){
+        var r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+elabsVoice,{method:'POST',headers:{'Accept':'audio/mpeg','Content-Type':'application/json','xi-api-key':elabsKey},body:JSON.stringify({text:chunks[i],model_id:'eleven_multilingual_v2',voice_settings:{stability:.55,similarity_boost:.75,style:.2}})});
+        if(!r.ok){var e=await r.json().catch(function(){return{};});throw new Error(e.detail&&e.detail.message||r.status);}
+        urls.push(URL.createObjectURL(await r.blob()));
+      }
+      ST.audioFetching=false;
+      playQueue(urls);return;
+    }catch(e){ST.audioFetching=false;ST.ttsError='ElevenLabs: '+e.message+' — using free voice';updateTTSUI();}
+  }
+
+  // ── 2. Puter.js OpenAI voice (free, human-sounding, no key) ──
+  if(window.puter&&puter.ai&&puter.ai.txt2speech){
+    ST.audioFetching=true;updateTTSUI();
+    try{
+      var chunks2=splitChunks(text,2900);
+      var urls2=[];
+      for(var j=0;j<chunks2.length;j++){
+        var el=await puter.ai.txt2speech(chunks2[j],{provider:'openai',model:'gpt-4o-mini-tts',voice:puterVoice});
+        var src=el.src||el.currentSrc;
+        if(!src)throw new Error('no audio source returned');
+        var rr=await fetch(src);
+        urls2.push(URL.createObjectURL(await rr.blob()));
+      }
+      ST.audioFetching=false;
+      playQueue(urls2);return;
+    }catch(e){
+      ST.audioFetching=false;ST.ttsError='Voice error: '+e.message;updateTTSUI();
+    }
+  }
+
+  // ── 3. Browser speech (last resort) ──
+  fallbackSpeech(text);
+}
+
+function splitChunks(text,max){var out=[];text=String(text);while(text.length>0){if(text.length<=max){out.push(text);break;}var cut=text.lastIndexOf('. ',max);if(cut<0)cut=text.lastIndexOf(' ',max);if(cut<0)cut=max;out.push(text.slice(0,cut+1));text=text.slice(cut+1).trim();}return out;}
+
+function togglePlay(){
+  unlockCtx();
+  if(ST.audioFetching)return;
+  var text=ST.story&&ST.story.text||'';
+  if(ST.ttsFinished){ST.ttsFinished=false;ST.ttsProgress=0;startTTS(text);return;}
+  if(audioEl&&(queueUrls.length>0)){
+    if(ST.ttsPlaying&&!ST.ttsPaused){try{audioEl.pause();}catch(e){}ST.ttsPlaying=false;ST.ttsPaused=true;updateTTSUI();return;}
+    if(ST.ttsPaused){audioEl.play().catch(function(){});ST.ttsPlaying=true;ST.ttsPaused=false;updateTTSUI();return;}
+    startTTS(text);return;
+  }
+  // Web Speech fallback path
+  if(ST.ttsPlaying&&!ST.ttsPaused){speechSynthesis.pause();clearInterval(progTimer);ST.ttsPaused=true;ST.ttsPlaying=false;updateTTSUI();return;}
+  if(ST.ttsPaused){speechSynthesis.resume();var cur=ST.ttsProgress,estMs=(text.split(' ').length/(.82*130))*60000,t0=Date.now();clearInterval(progTimer);progTimer=setInterval(function(){ST.ttsProgress=Math.min(cur+((Date.now()-t0)/estMs)*100,99);updateTTSUI();},500);ST.ttsPaused=false;ST.ttsPlaying=true;updateTTSUI();return;}
+  startTTS(text);
+}
+function updateTTSUI(){var btn=document.getElementById('play-btn');var lbl=document.getElementById('play-lbl');var fill=document.getElementById('prog-fill');var warn=document.getElementById('tts-warn');if(!btn)return;var isPlaying=ST.ttsPlaying&&!ST.ttsPaused;btn.innerHTML='<span style="font-size:'+(ST.audioFetching?22:28)+'px;margin-left:'+((!isPlaying&&!ST.ttsFinished&&!ST.audioFetching)?3:0)+'px">'+(ST.audioFetching?'⏳':ST.ttsFinished?'↺':isPlaying?'⏸':'▶')+'</span>';btn.className='play-btn'+(isPlaying?' pulse':'');btn.style.opacity=ST.audioFetching?.65:1;if(lbl)lbl.textContent=ST.audioFetching?'Preparing audio...':ST.ttsFinished?'The end  —  tap to replay':isPlaying?'Playing  —  tap to pause':ST.ttsPaused?'Paused  —  tap to continue':'Tap to listen';if(fill)fill.style.width=ST.ttsProgress+'%';if(warn){warn.textContent=ST.ttsError?'⚠️  '+ST.ttsError:'';warn.style.display=ST.ttsError?'block':'none';}}
+
+// ── Gemini ────────────────────────────────────────────────────────────────────
+async function gemini(prompt,key,maxTok,attempt){attempt=attempt||0;var resp=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key='+key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:.95,maxOutputTokens:maxTok||4096}})});var data=await resp.json();if(!resp.ok){var msg=data.error&&data.error.message||String(resp.status);if(attempt<3&&(resp.status===503||resp.status===429||msg.toLowerCase().includes('demand')||msg.toLowerCase().includes('quota'))){var wait=[5000,12000,25000][attempt];ST.statusMsg='Gemini is busy, retrying in '+(wait/1000)+'s...';showGenerating();await sleep(wait);return gemini(prompt,key,maxTok,attempt+1);}throw new Error(msg);}var t=data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0]&&data.candidates[0].content.parts[0].text;if(!t)throw new Error('Empty response');return t;}
+function parseJSON(raw){return JSON.parse(raw.replace(/```json|```/g,'').trim());}
+
+// ── Pipeline ──────────────────────────────────────────────────────────────────
+async function planAndWrite(cfg,key){var words=cfg.mins*130;var scaryNote=cfg.scary==='None'?'NO scary content at all':cfg.scary==='A little'?'only very mild, friendly spookiness':'some gentle suspense, nothing frightening';var p='You are a master children\'s storyteller. First DESIGN a story plan, then WRITE the story.\n\nChild\'s choices:\n- Hero: '+cfg.hero+(cfg.sidekick?'\n- Companion: '+cfg.sidekick:'')+'\n- Adventure type: '+cfg.adventure+'\n- Mood: '+cfg.mood+'\n\nParent settings:\n- Child age: '+cfg.age+'\n- Target length: ~'+words+' words\n- Lesson to weave in naturally: '+cfg.goal+'\n- Scary level: '+scaryNote+'\n\nSTEP 1 — Design a PLAN with: a clear goal, an obstacle, a 4-feeling emotional arc, the lesson shown through action (never preached), one surprising twist, a satisfying ending.\n\nSTEP 2 — WRITE the full story following that plan:\n- Vocabulary perfect for age '+cfg.age+'\n- Plenty of dialogue and sound effects (POW! WHOOSH! BOING!)\n- Short punchy sentences\n- One fun catchphrase repeated 3 times\n- Each emotion in the arc shown through what the hero does\n- '+cfg.mood+' tone\n- Warm ending where the lesson lands naturally\n\nReturn ONLY valid JSON, no markdown:\n{"plan":{"goal":"","obstacle":"","emotion_arc":["","","",""],"lesson":"","twist":"","ending":""},"story":"full story text here"}';return parseJSON(await gemini(p,key,Math.round(words*2.2)));}
+async function rewriteStory(cfg,plan,key,why){var words=cfg.mins*130;var p='Rewrite this children\'s story for a '+cfg.age+'-year-old. Keep the same plan, improve the writing — especially: '+why+'.\n\nPlan: '+JSON.stringify(plan)+'\n\nAim for ~'+words+' words, '+cfg.mood+' tone, dialogue, sound effects, a repeated catchphrase, emotion arc shown through action.\n\nReturn ONLY valid JSON: {"story":"full story text here"}';return parseJSON(await gemini(p,key,Math.round(words*2.2))).story;}
+async function critique(story,cfg,key){try{var p='Evaluate this children\'s story for a '+cfg.age+'-year-old. Return ONLY valid JSON:\n{"safety_score":<0-10>,"interest_score":<0-10>,"emotion_arc_score":<0-10>,"issues":"<or none>"}\nScary level should be "'+cfg.scary+'".\nStory: '+story;return parseJSON(await gemini(p,key,400));}catch(e){return{safety_score:8,interest_score:8,emotion_arc_score:8,issues:'none'};}}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+async function runPipeline(){var key=ls.get('gemini_key'),cfg=ST.cfg;ST.screen='generating';ST.errorMsg='';ST.retryNum=0;try{ST.statusMsg='Writing your story...';showGenerating();var result=await planAndWrite(cfg,key);var plan=result.plan,story=result.story;for(var a=0;a<=MAX_RETRY;a++){var bad=BLOCKLIST.filter(function(w){return story.toLowerCase().includes(w);});if(bad.length===0){ST.statusMsg='Checking the story...';showGenerating();var c=await critique(story,cfg,key);if(c.safety_score>=SAFETY&&c.interest_score>=INTEREST&&c.emotion_arc_score>=ARC){var hero=HEROES.find(function(h){return h.id===cfg.hero;})||HEROES[0];ST.story={text:story,plan:plan,judgment:c,title:hero.e+'  '+cfg.hero+' and the '+cfg.adventure};ST.ttsProgress=0;ST.ttsFinished=false;ST.ttsError='';ST.screen='story';showStory();return;}if(a<MAX_RETRY){var why=c.safety_score<SAFETY?'make it safer and gentler':'add more humor, suspense and a stronger emotional arc';ST.retryNum=a+1;ST.statusMsg='Polishing the story...';showGenerating();await sleep(800);story=await rewriteStory(cfg,plan,key,why);continue;}}else if(a<MAX_RETRY){ST.retryNum=a+1;ST.statusMsg='Adjusting for young readers...';showGenerating();await sleep(800);story=await rewriteStory(cfg,plan,key,'remove anything not suitable for young children');continue;}ST.errorMsg='Couldn\'t generate a suitable story. Please try again.';showConfig();return;}}catch(e){ST.errorMsg=e.message;showConfig();}}
+
+// ── Setup ─────────────────────────────────────────────────────────────────────
+function showSetup(){ST.screen='setup';var voice=ls.get('elabs_voice')||'EXAVITQu4vr4xnSDxMaL';var pv=ls.get('puter_voice')||'fable';
+document.getElementById('app').innerHTML='<div class="fi">'
+  +'<div class="center" style="margin-bottom:32px">'
+  +'<div style="height:64px;display:flex;align-items:center;justify-content:center">'+owlSVG(64,'owlfly','.4s')+'</div>'
+  +'<div style="font-size:32px;font-weight:800;color:#2c2c3e;margin-top:12px;letter-spacing:-.5px">Story Time</div>'
+  +'<div style="font-size:13px;color:#94a3b8;margin-top:4px">Set up your keys once, then you\'re ready to go</div>'
+  +'</div>'
+  +'<div class="card"><span class="lbl">Google Gemini Key</span>'
+  +'<p class="hint">Free — no credit card needed.<br><a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>  →  Get API Key  →  Create</p>'
+  +'<input type="password" id="inp-gk" placeholder="AIza..."/></div>'
+  +'<div class="card"><span class="lbl">Narrator Voice <span style="font-weight:400;font-size:11px;color:#94a3b8;text-transform:none;letter-spacing:0">(free, no key needed)</span></span>'
+  +'<p class="hint">Natural AI voices — works out of the box.</p>'
+  +'<div class="chips" style="margin-bottom:6px">'+PUTER_VOICES.map(function(v){return '<button class="chip'+(pv===v.id?' on':'')+'" data-pvoice="'+v.id+'" onclick="pickPuterVoice(\''+v.id+'\')">'+v.n+'</button>';}).join('')+'</div></div>'
+  +'<details class="card"><summary style="cursor:pointer;font-size:13px;font-weight:700;color:#94a3b8;list-style:none">Use ElevenLabs instead? (optional, needs key)</summary>'
+  +'<div style="margin-top:14px"><p class="hint"><a href="https://elevenlabs.io" target="_blank">elevenlabs.io</a> → Developers → API Keys. Free tier is limited (~2 stories/month).</p>'
+  +'<input type="password" id="inp-ek" placeholder="Paste ElevenLabs key (optional)..." style="margin-bottom:14px"/>'
+  +'<span class="lbl">ElevenLabs Voice</span>'
+  +'<div class="chips">'+VOICES.map(function(v){return '<button class="chip'+(voice===v.id?' on':'')+'" data-voice="'+v.id+'" onclick="pickVoice(\''+v.id+'\')">'+v.n+'</button>';}).join('')+'</div></div></details>'
+  +'<div id="ss"></div>'
+  +'<div class="spacer"></div>'
+  +'<button class="btn" onclick="testAndSave()">Test &amp; Save Keys</button></div>';}
+
+function pickVoice(id){ls.set('elabs_voice',id);document.querySelectorAll('[data-voice]').forEach(function(b){b.className='chip'+(b.dataset.voice===id?' on':'');});}
+function pickPuterVoice(id){ls.set('puter_voice',id);document.querySelectorAll('[data-pvoice]').forEach(function(b){b.className='chip'+(b.dataset.pvoice===id?' on':'');});}
+async function testAndSave(){
+  var gk=document.getElementById('inp-gk').value.trim();
+  var ek=(document.getElementById('inp-ek').value||'').trim();
+  var el=document.getElementById('ss');
+  if(!gk){el.innerHTML='<div class="warn">Gemini key is required.</div>';return;}
+  el.innerHTML='<p style="color:#94a3b8;text-align:center;font-size:14px;padding:12px 0">Testing...</p>';
+  unlockCtx();
+  try{
+    await gemini('Reply: ok',gk,10);
+    ls.set('gemini_key',gk);ls.set('elabs_key',ek);
+    if(ek){
+      var v=ls.get('elabs_voice')||'EXAVITQu4vr4xnSDxMaL';
+      var r=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+v,{method:'POST',headers:{'Accept':'audio/mpeg','Content-Type':'application/json','xi-api-key':ek},body:JSON.stringify({text:'Ready!',model_id:'eleven_multilingual_v2',voice_settings:{stability:.5,similarity_boost:.75,style:.1}})});
+      if(!r.ok){var e=await r.json().catch(function(){return{};});throw new Error('ElevenLabs: '+(e.detail&&e.detail.message||r.status));}
+      var blob=await r.blob();
+      ensureAudioEl();audioEl.src=URL.createObjectURL(blob);audioEl.currentTime=0;
+      await audioEl.play().catch(function(){});
+      el.innerHTML='<div class="ok">✓ Gemini + ElevenLabs both work. You should hear a voice now.</div>';
+    } else if(window.puter&&puter.ai&&puter.ai.txt2speech){
+      var pvoice=ls.get('puter_voice')||'fable';
+      var pel=await puter.ai.txt2speech('Hi! I will be telling your stories today.',{provider:'openai',model:'gpt-4o-mini-tts',voice:pvoice});
+      var psrc=pel.src||pel.currentSrc;
+      var pr=await fetch(psrc);
+      var pblob=await pr.blob();
+      ensureAudioEl();audioEl.src=URL.createObjectURL(pblob);audioEl.currentTime=0;
+      await audioEl.play().catch(function(){});
+      el.innerHTML='<div class="ok">✓ Gemini works. Listen — this is your free narrator voice!</div>';
+    } else {
+      el.innerHTML='<div class="ok">✓ Gemini works. (Voice library still loading — it will work on the story screen.)</div>';
+    }
+    setTimeout(function(){showConfig();},2200);
+  }catch(e){el.innerHTML='<div class="warn">⚠️ '+e.message+'</div>';}
+}
+
+// ── Config ────────────────────────────────────────────────────────────────────
+function showConfig(){ST.screen='config';stopAudio();var c=ST.cfg;
+document.getElementById('app').innerHTML='<div class="fi">'
+  +'<div class="center" style="margin-bottom:24px">'
+  +'<div style="height:58px;display:flex;align-items:center;justify-content:center">'+owlSVG(58,'owlfly','.4s')+'</div>'
+  +'<div style="font-size:28px;font-weight:800;color:#2c2c3e;margin-top:10px;letter-spacing:-.3px">Story Time</div>'
+  +'<button class="btn-ghost" onclick="showSetup()" style="margin-top:6px;display:block;width:100%">Settings</button>'
+  +'</div>'
+  +(ST.errorMsg?'<div class="error">'+escHtml(ST.errorMsg)+'</div>':'')
+  +'<div class="card"><span class="lbl">Who is the hero?</span>'
+  +'<div class="grid4">'+HEROES.map(function(h){return '<button class="tile'+(c.hero===h.id?' on':'')+'" onclick="setHero(\''+escAttr(h.id)+'\')"><span class="ico">'+h.e+'</span><span class="nm">'+h.id+'</span></button>';}).join('')+'</div>'
+  +'<div class="row" style="margin-top:12px"><input type="text" id="side-inp" value="'+escAttr(c.sidekick)+'" placeholder="Add a companion... (optional)"/></div></div>'
+  +'<div class="card"><span class="lbl">What kind of adventure?</span>'
+  +'<div class="grid3">'+ADVENTURES.map(function(a){return '<button class="tile'+(c.adventure===a.id?' on':'')+'" onclick="setAdv(\''+escAttr(a.id)+'\')"><span class="ico">'+a.e+'</span><span class="nm">'+a.id+'</span></button>';}).join('')+'</div></div>'
+  +'<div class="card"><span class="lbl">What mood?</span>'
+  +'<div class="grid2">'+MOODS.map(function(m){return '<button class="tile'+(c.mood===m.id?' on':'')+'" onclick="setMood(\''+escAttr(m.id)+'\')"><span class="ico">'+m.e+'</span><span class="nm">'+m.id+'</span></button>';}).join('')+'</div></div>'
+  +'<div class="card-plain"><div class="collapse-hd" onclick="toggleParent()"><span style="font-size:14px;font-weight:700;color:#64748b">Parent Settings</span><span style="color:#c8d8f0;font-size:18px">'+(ST.parentOpen?'▾':'▸')+'</span></div>'
+  +(ST.parentOpen?'<div style="margin-top:16px">'
+    +'<span class="lbl">Age: '+c.age+' years old</span><input type="range" min="3" max="9" value="'+c.age+'" oninput="setAge(this.value)"><hr class="sep">'
+    +'<span class="lbl">Story length: ~'+c.mins+' minutes</span><input type="range" min="3" max="12" value="'+c.mins+'" oninput="setLen(this.value)"><hr class="sep">'
+    +'<span class="lbl">What should the story teach?</span><div class="chips" style="margin-bottom:14px">'+GOALS.map(function(g){return '<button class="chip'+(c.goal===g?' on':'')+'" onclick="setGoal(\''+g+'\')">'+g+'</button>';}).join('')+'</div>'
+    +'<span class="lbl">How scary can it be?</span><div class="chips">'+SCARY.map(function(s){return '<button class="chip'+(c.scary===s?' on':'')+'" onclick="setScary(\''+escAttr(s)+'\')">'+s+'</button>';}).join('')+'</div>'
+    +'</div>':'')
+  +'</div>'
+  +'<div class="spacer"></div>'
+  +'<button class="btn" onclick="startPipeline()" style="font-size:19px;padding:20px">Tell Me a Story  ✨</button></div>';}
+
+function setHero(id){ST.cfg.hero=id;save();showConfig();}
+function setAdv(id){ST.cfg.adventure=id;save();showConfig();}
+function setMood(id){ST.cfg.mood=id;save();showConfig();}
+function setGoal(g){ST.cfg.goal=g;save();showConfig();}
+function setScary(s){ST.cfg.scary=s;save();showConfig();}
+function setAge(v){ST.cfg.age=parseInt(v);save();document.querySelectorAll('.lbl').forEach(function(l){if(l.textContent.startsWith('Age:'))l.textContent='Age: '+v+' years old';});}
+function setLen(v){ST.cfg.mins=parseInt(v);save();document.querySelectorAll('.lbl').forEach(function(l){if(l.textContent.startsWith('Story length:'))l.textContent='Story length: ~'+v+' minutes';});}
+function toggleParent(){var si=document.getElementById('side-inp');if(si)ST.cfg.sidekick=si.value;ST.parentOpen=!ST.parentOpen;showConfig();}
+function save(){var si=document.getElementById('side-inp');if(si)ST.cfg.sidekick=si.value.trim();try{ls.set('sw_cfg',JSON.stringify(ST.cfg));}catch(e){}}
+function startPipeline(){save();runPipeline();}
+
+// ── Generating ────────────────────────────────────────────────────────────────
+function showGenerating(){document.getElementById('app').innerHTML='<div class="fi" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:85vh;text-align:center;gap:20px">'
+  +'<div style="height:90px;display:flex;align-items:center;justify-content:center">'+owlSVG(84,'owlflybig','.3s')+'</div>'
+  +'<div style="font-size:22px;font-weight:800;color:#2c2c3e">Writing your story...</div>'
+  +'<div style="font-size:14px;color:#94a3b8;max-width:240px;line-height:1.6">'+ST.statusMsg+'</div>'
+  +(ST.retryNum>0?'<div style="font-size:12px;color:#b8cae8;background:white;border:1.5px solid #e8edf5;border-radius:50px;padding:6px 16px">Polish '+ST.retryNum+' of '+MAX_RETRY+'</div>':'')
+  +'<div style="display:flex;gap:8px;margin-top:4px">'
+  +'<div class="dot" style="animation:bo 1.4s ease-in-out 0s infinite"></div>'
+  +'<div class="dot" style="animation:bo 1.4s ease-in-out .3s infinite"></div>'
+  +'<div class="dot" style="animation:bo 1.4s ease-in-out .6s infinite"></div>'
+  +'</div></div>';}
+
+// ── Story ─────────────────────────────────────────────────────────────────────
+function showStory(){ST.screen='story';var s=ST.story,j=s.judgment;
+var sc=function(v){return v>=8?'#2d7a4a':v>=6?'#8b5c0a':'#c44';};
+var bg=function(v){return v>=8?'#f0faf4':v>=6?'#fdf6e8':'#fff0f0';};
+var bc=function(v){return v>=8?'#a8d8b8':v>=6?'#e8c878':'#fcc';};
+document.getElementById('app').innerHTML='<div class="fi">'
+  +'<div class="center" style="margin-bottom:20px">'
+  +'<div style="font-size:20px;font-weight:800;color:#2c2c3e;line-height:1.3;margin-bottom:14px;padding:0 8px">'+escHtml(s.title)+'</div>'
+  +'<div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:18px">'
+  +'<span class="badge" style="background:'+bg(j.safety_score)+';color:'+sc(j.safety_score)+';border-color:'+bc(j.safety_score)+'">Safe  '+j.safety_score+'/10</span>'
+  +'<span class="badge" style="background:'+bg(j.interest_score)+';color:'+sc(j.interest_score)+';border-color:'+bc(j.interest_score)+'">Fun  '+j.interest_score+'/10</span>'
+  +'<span class="badge" style="background:'+bg(j.emotion_arc_score)+';color:'+sc(j.emotion_arc_score)+';border-color:'+bc(j.emotion_arc_score)+'">Emotion  '+j.emotion_arc_score+'/10</span>'
+  +'</div>'
+  +'<button id="play-btn" onclick="tapPlay()"><span style="font-size:28px;margin-left:3px">▶</span></button>'
+  +'<div id="play-lbl" style="font-size:13px;color:#94a3b8;margin-top:10px;font-weight:700">Tap to listen</div>'
+  +'<div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>'
+  +'</div>'
+  +'<div id="tts-warn" class="warn" style="display:none"></div>'
+  +'<div class="card story-scroll"><p class="story-text">'+escHtml(s.text)+'</p></div>'
+  +'<details style="margin:14px 0 20px">'
+  +'<summary style="cursor:pointer;font-size:12px;font-weight:700;color:#94a3b8;list-style:none;text-align:center">Story Blueprint  ▾</summary>'
+  +'<div class="card-plain" style="margin-top:10px;font-size:14px;line-height:1.8;color:#64748b">'
+  +'<b style="color:#5b7ec9">Lesson:</b> '+escHtml(s.plan.lesson)+'<br>'
+  +'<b style="color:#5b7ec9">Goal:</b> '+escHtml(s.plan.goal)+'<br>'
+  +'<b style="color:#5b7ec9">Emotional arc:</b> '+escHtml((s.plan.emotion_arc||[]).join(' → '))+'<br>'
+  +'<b style="color:#5b7ec9">Twist:</b> '+escHtml(s.plan.twist)+'</div></details>'
+  +'<button class="btn" onclick="newStory()">New Story</button></div>';
+ST.ttsError='';updateTTSUI();}
+
+function tapPlay(){unlockCtx();ST.ttsError='';togglePlay();}
+function newStory(){stopAudio();ST.story=null;ST.ttsProgress=0;ST.ttsFinished=false;ST.ttsError='';showConfig();}
+function escHtml(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function escAttr(s){return String(s==null?'':s).replace(/'/g,'&#39;').replace(/"/g,'&quot;');}
+
+if(ST.screen==='config')showConfig();else showSetup();
+</script>
+</body>
+</html>
