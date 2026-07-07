@@ -2,6 +2,8 @@
 
 A bedtime-story generator built for the car, the couch, or anywhere your kid wants a story read aloud.
 
+**🔗 Try it now: [kidsllmstory.netlify.app](https://kidsllmstory.netlify.app)** — no setup needed to try it, but you'll still need your own free API key (see below) to generate stories.
+
 Pick a hero, an adventure, and a mood — the app designs a story plan, writes the story, checks it for safety and quality, then narrates it out loud. No app store, no sign-up walls: it's a single HTML file you host yourself.
 
 ## How it works
